@@ -1,23 +1,25 @@
 package br.com.teste.fipecafi.controller;
 
-import br.com.teste.fipecafi.dto.MatriculaRequest;  // Importando a classe MatriculaRequest
+import br.com.teste.fipecafi.dto.MatriculaRequest;
 import br.com.teste.fipecafi.entity.Aluno;
 import br.com.teste.fipecafi.entity.Lead;
 import br.com.teste.fipecafi.entity.Turma;
 import br.com.teste.fipecafi.repository.AlunoRepository;
-import br.com.teste.fipecafi.repository.LeadRepository;
 import br.com.teste.fipecafi.repository.TurmaRepository;
+import br.com.teste.fipecafi.service.LeadService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/leads")
 public class LeadController {
 
     @Autowired
-    private LeadRepository leadRepository;
+    private LeadService leadService;
 
     @Autowired
     private AlunoRepository alunoRepository;
@@ -29,8 +31,22 @@ public class LeadController {
     @GetMapping
     public ResponseEntity<Iterable<Lead>> getAllLeads() {
         try {
-            Iterable<Lead> leads = leadRepository.findAll();
+            Iterable<Lead> leads = leadService.getAllLeads();
             return ResponseEntity.ok(leads);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    // Método para filtrar leads com base nos parâmetros fornecidos
+    @GetMapping("/filter")
+    public ResponseEntity<List<Lead>> filterLeads(
+            @RequestParam(required = false) String nome,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String curso) {
+        try {
+            List<Lead> filteredLeads = leadService.filterLeads(nome, email, curso);
+            return ResponseEntity.ok(filteredLeads);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
@@ -39,64 +55,47 @@ public class LeadController {
     // Método para criar um novo lead
     @PostMapping
     public ResponseEntity<Lead> createLead(@RequestBody Lead lead) {
-        Lead savedLead = leadRepository.save(lead);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedLead);
+        try {
+            Lead savedLead = leadService.saveLead(lead);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedLead);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    // Método para atualizar um lead
+    @PutMapping("/{leadId}")
+    public ResponseEntity<Lead> updateLead(@PathVariable Long leadId, @RequestBody Lead updatedLead) {
+        try {
+            Lead lead = leadService.updateLead(leadId, updatedLead);  // Usando o serviço para atualizar
+            return ResponseEntity.ok(lead);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
     }
 
     // Método para matricular o aluno
     @PostMapping("/{leadId}/matricular")
     public ResponseEntity<Aluno> matricularAluno(@PathVariable Long leadId, @RequestBody MatriculaRequest matriculaRequest) {
         try {
-            // Buscar o lead pelo ID
-            Lead lead = leadRepository.findById(leadId)
-                    .orElseThrow(() -> new RuntimeException("Lead não encontrado"));
-
-            // Buscar a turma pelo ID fornecido no corpo da requisição
+            Lead lead = leadService.getLeadById(leadId);
             Turma turma = turmaRepository.findById(matriculaRequest.getTurmaId())
                     .orElseThrow(() -> new RuntimeException("Turma não encontrada"));
 
-            // Criar o aluno a partir do lead
             Aluno aluno = new Aluno();
             aluno.setNome(lead.getNome());
             aluno.setTelefone(lead.getTelefone());
             aluno.setEmail(lead.getEmail());
-            aluno.setCurso(lead.getCurso());  // Associa o curso do lead
-            aluno.setTurma(turma);  // Associa a turma
-            aluno.setCodigoMatricula(generateCodigoMatricula());  // Gerar um código de matrícula aleatório
-            aluno.setDataCadastro("2024-11-26");  // Definir data de cadastro
+            aluno.setCurso(lead.getCurso());
+            aluno.setTurma(turma);
+            aluno.setCodigoMatricula(generateCodigoMatricula());
+            aluno.setDataCadastro("2024-11-26");
 
-            // Salvar o aluno no banco de dados
             Aluno savedAluno = alunoRepository.save(aluno);
-
-            // Retornar o aluno criado com status 201 (Created)
             return ResponseEntity.status(HttpStatus.CREATED).body(savedAluno);
 
         } catch (Exception e) {
-            // Captura qualquer erro e retorna um erro genérico
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
-    }
-
-    // Método para listar todos os alunos matriculados
-    @GetMapping("/alunos")
-    public ResponseEntity<Iterable<Aluno>> getAllAlunos() {
-        try {
-            Iterable<Aluno> alunos = alunoRepository.findAll();
-            return ResponseEntity.ok(alunos);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
-    }
-
-    // Método para exibir detalhes de um aluno específico
-    @GetMapping("/alunos/{id}")
-    public ResponseEntity<Aluno> getAlunoById(@PathVariable Long id) {
-        try {
-            Aluno aluno = alunoRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Aluno não encontrado"));
-            return ResponseEntity.ok(aluno);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
 

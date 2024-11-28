@@ -4,7 +4,7 @@ public class MatriculaRequest {
 
     private Long turmaId;
 
-    // Getter e Setter
+    // Getters e Setters
     public Long getTurmaId() {
         return turmaId;
     }
