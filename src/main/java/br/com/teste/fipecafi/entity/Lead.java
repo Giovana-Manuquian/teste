@@ -1,4 +1,4 @@
-package br.com.teste.fipecafi.entity;
+    package br.com.teste.fipecafi.entity;
 
 import jakarta.persistence.*;
 

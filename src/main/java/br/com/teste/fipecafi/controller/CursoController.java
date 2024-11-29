@@ -45,4 +45,15 @@ public class CursoController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);  // Em caso de erro
         }
     }
+
+    // Método para criar um ou múltiplos cursos (modificado para aceitar uma lista)
+    @PostMapping
+    public ResponseEntity<List<Curso>> criarCursos(@RequestBody List<Curso> cursos) {
+        try {
+            List<Curso> novosCursos = cursoService.salvarCursos(cursos);  // Salva todos os cursos enviados
+            return ResponseEntity.status(HttpStatus.CREATED).body(novosCursos);  // Retorna a lista de cursos criados
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);  // Caso haja erro
+        }
+    }
 }

@@ -2,9 +2,13 @@ package br.com.teste.fipecafi.repository;
 
 import br.com.teste.fipecafi.entity.Lead;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import java.util.List;
 
-@Repository
 public interface LeadRepository extends JpaRepository<Lead, Long> {
-    // Não é necessário implementar nada aqui para o filtro, já que estamos usando a lógica no serviço
+
+    // Método para buscar leads filtrados por nome, email e curso
+    List<Lead> findByNomeContainingAndEmailContainingAndCursoId(String nome, String email, Long curso);
+
+    // Método para buscar leads filtrados apenas por nome e email
+    List<Lead> findByNomeContainingAndEmailContaining(String nome, String email);
 }
