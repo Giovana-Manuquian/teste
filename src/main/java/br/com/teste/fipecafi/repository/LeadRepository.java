@@ -6,9 +6,9 @@ import java.util.List;
 
 public interface LeadRepository extends JpaRepository<Lead, Long> {
 
-    // Método para buscar leads filtrados por nome, email e curso
+    // Busca filtrada por nome, email e ID do curso
     List<Lead> findByNomeContainingAndEmailContainingAndCursoId(String nome, String email, Long curso);
 
-    // Método para buscar leads filtrados apenas por nome e email
+    // Busca filtrada apenas por nome e email
     List<Lead> findByNomeContainingAndEmailContaining(String nome, String email);
 }

@@ -3,15 +3,17 @@ package br.com.teste.fipecafi.entity;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "cursos")
 public class Curso {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // Geração automática de IDs
     private Long id;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false)
     private String descricao;
 
-    // Getters and Setters
+    // Getters e Setters
     public Long getId() {
         return id;
     }

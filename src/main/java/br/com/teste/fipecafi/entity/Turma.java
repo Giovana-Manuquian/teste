@@ -16,7 +16,7 @@ public class Turma {
     @JoinColumn(name = "curso_id", nullable = false)
     private Curso curso;
 
-    // Getters and Setters
+    // Getters e Setters
     public Long getId() {
         return id;
     }
