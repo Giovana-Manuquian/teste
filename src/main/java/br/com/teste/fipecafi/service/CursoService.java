@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CursoService {
@@ -21,5 +22,11 @@ public class CursoService {
     // Salvar uma lista de cursos no banco de dados
     public List<Curso> salvarCursos(List<Curso> cursos) {
         return cursoRepository.saveAll(cursos); // Salva no banco
+    }
+
+    // Método para buscar um curso pelo ID
+    public Curso findById(Long id) {
+        Optional<Curso> cursoOptional = cursoRepository.findById(id);
+        return cursoOptional.orElse(null); // Retorna o curso ou null se não encontrado
     }
 }
